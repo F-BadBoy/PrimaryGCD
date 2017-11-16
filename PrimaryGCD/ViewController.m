@@ -234,6 +234,11 @@
     
     dispatch_queue_t queue = dispatch_get_main_queue();
     
+    /*此处会崩溃
+     我们把任务放到了主队列中，也就是放到了主线程的队列中。而同步执行有个特点，就是对于任务是立马执行的。那么当我们把第一个任务放进主队列中，它就会立马执行。但是主线程现在正在处理syncMain方法，所以任务需要等syncMain执行完才能执行。而syncMain执行到第一个任务的时候，又要等第一个任务执行完才能往下执行第二个和第三个任务。
+     
+     那么，现在的情况就是syncMain方法和第一个任务都在等对方执行完毕。这样大家互相等待，所以就卡住了
+     */
     dispatch_sync(queue, ^{
         for (int i = 0; i < 2; ++i) {
             NSLog(@"1------%@",[NSThread currentThread]);
